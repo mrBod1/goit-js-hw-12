@@ -21,6 +21,7 @@ const loadMoreBtn = document.querySelector('#load-more');
 let query = '';
 let page = 1;
 let totalHits = 0;
+const PER_PAGE = 15;
 
 submitBtn.disabled = true;
 
@@ -34,10 +35,6 @@ loadMoreBtn.addEventListener('click', onLoadMore);
 function resetForm() {
   formEl.reset();
   submitBtn.disabled = true;
-}
-
-function shouldShowLoadMore(hitsCount, total) {
-  return hitsCount === 15 && total > 15;
 }
 
 function smoothScroll() {
@@ -77,10 +74,15 @@ async function onFormSubmit(event) {
 
     createGallery(data.hits);
 
-    if (shouldShowLoadMore(data.hits.length, totalHits)) {
-      showLoadMoreButton();
-    } else {
+    // Якщо всі результати вмістилися в один запит
+    if (totalHits <= PER_PAGE) {
       hideLoadMoreButton();
+      iziToast.info({
+        message: "You've reached the end of search results.",
+        position: 'topRight',
+      });
+    } else {
+      showLoadMoreButton();
     }
   } catch {
     iziToast.error({
@@ -96,22 +98,36 @@ async function onFormSubmit(event) {
 
 async function onLoadMore() {
   page += 1;
+
+  hideLoadMoreButton(); // ховаємо кнопку на час завантаження
   showLoader();
 
   try {
     const data = await getImagesByQuery(query, page);
-    createGallery(data.hits);
 
+    // Якщо API повернув порожній масив
+    if (!data.hits.length) {
+      iziToast.info({
+        message: "No more images available.",
+        position: 'topRight',
+      });
+      return;
+    }
+
+    createGallery(data.hits);
     smoothScroll();
 
-    const loaded = page * 15;
+    const loaded = page * PER_PAGE;
 
+    // Якщо досягли кінця результатів
     if (loaded >= totalHits) {
       hideLoadMoreButton();
       iziToast.info({
-        message: "We're sorry, but you've reached the end of search results.",
+        message: "You've reached the end of search results.",
         position: 'topRight',
       });
+    } else {
+      showLoadMoreButton(); // показуємо знову, якщо ще є дані
     }
   } catch {
     iziToast.error({
@@ -123,4 +139,3 @@ async function onLoadMore() {
     hideLoader();
   }
 }
-
