@@ -1,14 +1,14 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="uk">
 
 <head>
     <meta charset="UTF-8" />
-    <title>Image Search</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Image Search</title>
 </head>
 
 <body>
-    <div class="container">
+    <main class="container">
         <form class="form">
             <label>
                 <input type="text" name="search-text" placeholder="Search images..." required />
@@ -16,12 +16,17 @@
             <button type="submit">Search</button>
         </form>
 
-        <div class="loader is-hidden">
-            <span class="loader-inner"></span>
+        <ul class="gallery"></ul>
+
+        <div class="controls">
+            <div class="loader is-hidden">
+                <span class="loader-inner"></span>
+            </div>
+
+            <button id="load-more" class="is-hidden">Load more</button>
         </div>
 
-        <ul class="gallery"></ul>
-    </div>
+    </main>
 
     <script type="module" src="./main.js"></script>
 </body>
